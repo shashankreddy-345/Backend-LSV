@@ -1,26 +1,23 @@
-
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const connectDB = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Optional: reduce “buffering timed out” on slow cold starts
+mongoose.set("bufferTimeoutMS", 30000);
 
 const Resource = require('./models/Resource');
-const Booking = require('./models/Booking');
 const User = require('./models/User');
-const Feedback = require('./models/Feedback');
 
+// ✅ Always ensure DB is connected inside routes (serverless-safe)
 app.get('/api/resources', async (req, res) => {
   try {
+    await connectDB();
     const resources = await Resource.find().lean();
     res.json(resources);
   } catch (error) {
@@ -30,6 +27,7 @@ app.get('/api/resources', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   try {
+    await connectDB();
     const { email, password } = req.body;
     const user = await User.findOne({ email, password });
     if (user) res.json(user);
@@ -39,4 +37,4 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+module.exports = app;
