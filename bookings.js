@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Booking = require('./models/Booking');
 
-// GET /api/bookings (Get all bookings)
+// GET all
 router.get('/', async (req, res) => {
   try {
     const bookings = await Booking.find();
@@ -12,45 +12,24 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/bookings/:studentId
+// GET by studentId
 router.get('/:studentId', async (req, res) => {
   try {
-    const bookings = await Booking.find({ userId: req.params.studentId }).populate('resourceId');
+    const bookings = await Booking.find({ studentId: req.params.studentId });
     res.json(bookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// POST /api/bookings
+// POST create
 router.post('/', async (req, res) => {
   try {
     const booking = new Booking(req.body);
     await booking.save();
     res.status(201).json(booking);
   } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// PUT /api/bookings/:id
-router.put('/:id', async (req, res) => {
-  try {
-    const booking = await Booking.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!booking) return res.status(404).json({ message: 'Booking not found' });
-    res.json(booking);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// DELETE /api/bookings/:id
-router.delete('/:id', async (req, res) => {
-  try {
-    await Booking.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Booking cancelled successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(400).json({ message: error.message }); // 400 is better for validation errors
   }
 });
 
