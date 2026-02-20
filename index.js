@@ -19,12 +19,14 @@ const userRoutes = require('./users');
 const bookingRoutes = require('./bookings');
 const feedbackRoutes = require('./feedback');
 const resourceRoutes = require('./resources');
+const waitlistRoutes = require('./waitlist');
 
 app.use('/api', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/resources', resourceRoutes);
+app.use('/api/waitlist', waitlistRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
