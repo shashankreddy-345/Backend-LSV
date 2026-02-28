@@ -51,6 +51,7 @@ async function seed() {
       console.error('👉 Go to MongoDB Atlas > Network Access > Add IP Address > Allow Access from Anywhere (0.0.0.0/0).\n');
     }
     console.error('Error seeding data:', err);
+    process.exit(1);
   } finally {
     await client.close();
   }
@@ -92,3 +93,8 @@ function parseCSV(csvText) {
 }
 
 seed();
+if (require.main === module) {
+  seed();
+}
+
+module.exports = seed;
