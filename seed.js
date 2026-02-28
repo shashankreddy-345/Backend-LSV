@@ -29,18 +29,31 @@ async function seed() {
     if (fs.existsSync(dataDir)) {
       const files = fs.readdirSync(dataDir);
 
+      let bookingsData = [];
       for (const file of files) {
-        if (path.extname(file) === '.csv') {
+        if (file === 'bookings_new.csv' || file === 'bookings.csv') {
+          const data = parseCSV(fs.readFileSync(path.join(dataDir, file), 'utf-8'));
+          if (Array.isArray(data)) {
+            bookingsData = bookingsData.concat(data);
+          }
+        } else if (path.extname(file) === '.csv') {
           const collectionName = path.basename(file, '.csv');
           const collection = db.collection(collectionName);
           const data = parseCSV(fs.readFileSync(path.join(dataDir, file), 'utf-8'));
-
           if (Array.isArray(data) && data.length > 0) {
             await collection.deleteMany({});
             const result = await collection.insertMany(data);
             console.log(`Seeded ${collectionName} with ${result.insertedCount} documents`);
           }
         }
+      }
+
+      if (bookingsData.length > 0) {
+        const collectionName = 'bookings';
+        const collection = db.collection(collectionName);
+        await collection.deleteMany({});
+        const result = await collection.insertMany(bookingsData);
+        console.log(`Seeded ${collectionName} with ${result.insertedCount} documents`);
       }
     } else {
       console.log('No data directory found');
@@ -92,7 +105,6 @@ function parseCSV(csvText) {
   });
 }
 
-seed();
 if (require.main === module) {
   seed();
 }
